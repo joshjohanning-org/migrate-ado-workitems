@@ -64,12 +64,12 @@ jobs:
           write-host "${{ github.event.inputs.gh_update_assigned_to }}"
           write-host "${{ github.event.inputs.gh_add_ado_comments }}"
           
-          if(${{ github.event.inputs.gh_update_assigned_to }} -eq "true") {
+          if("${{ github.event.inputs.gh_update_assigned_to }}" -eq "true") {
             $gh_update_assigned_to=$true
             write-host "does this work"
           }
           
-          if(${{ github.event.inputs.gh_add_ado_comments }} -eq true) {
+          if("${{ github.event.inputs.gh_add_ado_comments }}" -eq true) {
             $gh_add_ado_comments=$true
             write-host "does this also work"
           }
