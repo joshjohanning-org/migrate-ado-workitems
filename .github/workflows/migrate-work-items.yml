@@ -24,7 +24,7 @@ on:
         required: true
         default: 'migrate-ado-workitems'
       gh_update_assigned_to:
-        description: 'Update'
+        description: 'Update Assigned To'
         required: true
         type: boolean
         default: 'true'
@@ -33,7 +33,7 @@ on:
         required: true
         default: '_corp'
       gh_add_ado_comments:
-        description: 'Update'
+        description: 'Add ADO Comments'
         required: true
         type: boolean
         default: 'true'
