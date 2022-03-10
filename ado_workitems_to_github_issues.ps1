@@ -43,7 +43,7 @@ param (
     [string]$gh_repo,
     [bool]$gh_update_assigned_to = $false, # try to update the assigned to field in GitHub
     [string]$gh_assigned_to_user_suffix = "", # the emu suffix, ie: "_corp"
-    [bool]$gh_add_comments = $false # try to get comments
+    [bool]$gh_add_ado_comments = $false # try to get comments
 )
 
 echo "$ado_pat" | az devops login --organization "https://dev.azure.com/$ado_org"
@@ -106,7 +106,7 @@ ForEach($workitem in $query) {
     $original_workitem_json_end | Add-Content -Path ./temp_comment_body.txt
 
     # getting comments if enabled
-    if($gh_add_comments -eq $true) {
+    if($gh_add_ado_comments -eq $true) {
         $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
         $base64 = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes(":$ado_pat"))
         $headers.Add("Authorization", "Basic $base64")
@@ -151,7 +151,9 @@ ForEach($workitem in $query) {
     if ($gh_update_assigned_to -eq $true) {
         $ado_assignee=$details.fields.{System.AssignedTo}.uniqueName
         $gh_assignee=$ado_assignee.Split("@")[0]
-        $gh_assignee=$gh_assignee.Replace(".", "-") + $gh_assigned_to_user_suffix
+        # hardcoding
+        # $gh_assignee=$gh_assignee.Replace(".", "-") + $gh_assigned_to_user_suffix
+        $gh_assignee = "joshjohanning"
         write-host "trying to assign to: $gh_assignee"
         $assigned=gh issue edit $issue_url --add-assignee "$gh_assignee"
     }
