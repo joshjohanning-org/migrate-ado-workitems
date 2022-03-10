@@ -10,16 +10,19 @@
 #      - You can modify the WIQL if you want to use a different way to migrate work items, such as UNDER [Area Path]
 
 # How to run:
-# ./ado_workitems_to_github_issues.ps1 -ado_pat "xxx" -ado_org "jjohanning0798" -ado_project "PartsUnlimited" -ado_tag "migrate" -gh_pat "xxx" -gh_org "joshjohanning-org" -gh_repo "migrate-ado-workitems" -gh_update_assigned_to $true -gh_assigned_to_user_suffix "_corp"
+# ./ado_workitems_to_github_issues.ps1 -ado_pat "xxx" -ado_org "jjohanning0798" -ado_project "PartsUnlimited" -ado_tag "migrate" -gh_pat "xxx" -gh_org "joshjohanning-org" -gh_repo "migrate-ado-workitems" -gh_update_assigned_to $true -gh_assigned_to_user_suffix "_corp" -gh_add_ado_comments $true
 
 #
 # Things it migrates:
 # 1. Title
-# 2. Description (or repro steps + system info for a bug
+# 2. Description (or repro steps + system info for a bug)
 # 3. State (if the work item is done / closed, it will be closed in GitHub)
 # 4. It will try to assign the work item to the correct user in GitHub - based on ADO email (-gh_update_assigned_to and -gh_assigned_to_user_suffix options) - they of course have to be in GitHub already
 # 5. Migrate acceptance criteria as part of issue body (if present)
-# 6. It also migrates the entire work item as JSON as a comment
+# 6. Adds in the following as a comment to the issue:
+#   a. Original work item url 
+#   b. Basic details in a collapsed markdown table
+#   c. Entire work item as JSON in a collapsed section
 #
 
 # 
@@ -38,12 +41,12 @@ param (
     [string]$ado_org, # Azure devops org without the URL, eg: "MyAzureDevOpsOrg"
     [string]$ado_project, # Team project name that contains the work items, eg: "TailWindTraders"
     [string]$ado_tag, # only one tag is supported, would have to add another clause in the $wiql, eg: "migrate")
-    [string]$gh_pat,
-    [string]$gh_org,
-    [string]$gh_repo,
+    [string]$gh_pat, # GitHub PAT
+    [string]$gh_org, # GitHub organization to create the issues in
+    [string]$gh_repo, # GitHub repository to create the issues in
     [bool]$gh_update_assigned_to = $false, # try to update the assigned to field in GitHub
     [string]$gh_assigned_to_user_suffix = "", # the emu suffix, ie: "_corp"
-    [bool]$gh_add_ado_comments = $false # try to get comments
+    [bool]$gh_add_ado_comments = $false # try to get ado comments
 )
 
 echo "$ado_pat" | az devops login --organization "https://dev.azure.com/$ado_org"
@@ -75,16 +78,12 @@ ForEach($workitem in $query) {
             $description+="## System Info`n`n" + $details.fields.{Microsoft.VSTS.TCM.SystemInfo} + "`n`n"
         }
     } else {
-        # $description+="## Description`n`n"
         $description+=$details.fields.{System.Description}
         # add in acceptance criteria if it has it
         if(![string]::IsNullOrEmpty($details.fields.{Microsoft.VSTS.Common.AcceptanceCriteria})) {
             $description+="`n`n## Acceptance Criteria`n`n" + $details.fields.{Microsoft.VSTS.Common.AcceptanceCriteria}
         }
     }
-
-    # add in details
-    # $description+="`n`n## Details`n`n**Created date**: $($details.fields.{System.CreatedDate})`n**Created by**: $($details.fields.{System.CreatedBy}.displayName)`n**Changed date**: $($details.fields.{System.ChangedDate})`n**Changed by**: $($details.fields.{System.ChangedBy}.displayName)`n**State**: $($details.fields.{System.State})`n"
 
     $description | Out-File -FilePath ./temp_issue_body.txt
 
@@ -94,8 +93,8 @@ ForEach($workitem in $query) {
     # create the details chart
     $ado_details_beginning="`n`n<details><summary>Original Work Item Details</summary><p>" + "`n`n"
     $ado_details_beginning | Add-Content -Path ./temp_comment_body.txt
-    $ado_details= "| Created date | Created by | Changed date | Changed By | State | Type | Area Path | Iteration Path|`n|---|---|---|---|---|---|---|---|`n"
-    $ado_details+="| $($details.fields.{System.CreatedDate}) | $($details.fields.{System.CreatedBy}.displayName) | $($details.fields.{System.ChangedDate}) | $($details.fields.{System.ChangedBy}.displayName) | $($details.fields.{System.State}) | $($details.fields.{System.WorkItemType}) | $($details.fields.{System.AreaPath}) | $($details.fields.{System.IterationPath}) |`n`n"
+    $ado_details= "| Created date | Created by | Changed date | Changed By | Assigned To | State | Type | Area Path | Iteration Path|`n|---|---|---|---|---|---|---|---|`n"
+    $ado_details+="| $($details.fields.{System.CreatedDate}) | $($details.fields.{System.CreatedBy}.displayName) | $($details.fields.{System.ChangedDate}) | $($details.fields.{System.ChangedBy}.displayName) | $($details.fields.{System.AssignedTo}.displayName) | $($details.fields.{System.State}) | $($details.fields.{System.WorkItemType}) | $($details.fields.{System.AreaPath}) | $($details.fields.{System.IterationPath}) |`n`n"
     $ado_details | Add-Content -Path ./temp_comment_body.txt
     $ado_details_end="`n" + "`n</p></details>"    
     $ado_details_end | Add-Content -Path ./temp_comment_body.txt
@@ -117,7 +116,6 @@ ForEach($workitem in $query) {
             $ado_original_workitem_json_beginning="`n`n<details><summary>Work Item Comments ($($response.count))</summary><p>" + "`n`n"
             $ado_original_workitem_json_beginning | Add-Content -Path ./temp_comment_body.txt
             ForEach($comment in $response.comments) {
-                # $ado_comments_details= "> **Created date**: $($comment.createdDate)`n**Created by**: $($comment.createdBy.displayName)`n**[Comment URL JSON]($($comment.url))**`n**Comment text**:$($comment.text)`n`n-----------`n`n"
                 $ado_comments_details= "| Created date | Created by | JSON URL |`n|---|---|---|`n"
                 $ado_comments_details+="| $($comment.createdDate) | $($comment.createdBy.displayName) | [URL]($($comment.url)) |`n`n"
                 $ado_comments_details+="**Comment text**: $($comment.text)`n`n-----------`n`n"
