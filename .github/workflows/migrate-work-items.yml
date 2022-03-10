@@ -49,7 +49,9 @@ jobs:
           app_id: 179484
           installation_id: 23995058
           private_key: ${{ secrets.PRIVATE_KEY }}
-          
+      
+      - uses: actions/checkout@main
+      
       - name: run migration
         shell: pwsh
         run: |
