@@ -61,6 +61,9 @@ jobs:
           $gh_update_assigned_to=$false
           $gh_add_ado_comments=$false
           
+          write-host "${{ github.event.inputs.gh_update_assigned_to }}"
+          write-host "${{ github.event.inputs.gh_add_ado_comments }}"
+          
           if(${{ github.event.inputs.gh_update_assigned_to }} -like "true") {
             $gh_update_assigned_to=$true
             write-host "does this work"
