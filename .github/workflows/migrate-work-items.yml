@@ -55,25 +55,19 @@ jobs:
       - name: run migration
         shell: pwsh
         run: |
-          # running migration
-          
           # cleaning up bools
           $gh_update_assigned_to=$false
           $gh_add_ado_comments=$false
           
-          write-host "${{ github.event.inputs.gh_update_assigned_to }}"
-          write-host "${{ github.event.inputs.gh_add_ado_comments }}"
-          
           if("${{ github.event.inputs.gh_update_assigned_to }}" -eq "true") {
             $gh_update_assigned_to=$true
-            write-host "does this work"
           }
           
-          if("${{ github.event.inputs.gh_add_ado_comments }}" -like "true") {
+          if("${{ github.event.inputs.gh_add_ado_comments }}" -eq "true") {
             $gh_add_ado_comments=$true
-            write-host "does this also work"
           }
           
-          # ./ado_workitems_to_github_issues.ps1 -ado_pat "${{ SECRETS.ADO_PAT }}" -ado_org "${{ github.event.inputs.ado-org }}" -ado_project "${{ github.event.inputs.ado-project }}" -ado_tag "${{ github.event.inputs.ado-tag }}" -gh_pat "${{ steps.get_installation_token.outputs.token }}" -gh_org "${{ github.event.inputs.gh-org }}" -gh_repo "${{ github.event.inputs.gh-repo }}" -gh_update_assigned_to $gh_update_assigned_to -gh_assigned_to_user_suffix "${{ github.event.inputs.gh_assigned_to_user_suffix }}" -gh_add_ado_comments $gh_add_ado_comments
+          # running migration
+          ./ado_workitems_to_github_issues.ps1 -ado_pat "${{ SECRETS.ADO_PAT }}" -ado_org "${{ github.event.inputs.ado-org }}" -ado_project "${{ github.event.inputs.ado-project }}" -ado_tag "${{ github.event.inputs.ado-tag }}" -gh_pat "${{ steps.get_installation_token.outputs.token }}" -gh_org "${{ github.event.inputs.gh-org }}" -gh_repo "${{ github.event.inputs.gh-repo }}" -gh_update_assigned_to $gh_update_assigned_to -gh_assigned_to_user_suffix "${{ github.event.inputs.gh_assigned_to_user_suffix }}" -gh_add_ado_comments $gh_add_ado_comments
           
       
