@@ -157,7 +157,7 @@ ForEach($workitem in $query) {
     }
 
     # update assigned to in GitHub if the option is set - tries to use ado email to map to github username
-    if ($gh_update_assigned_to -eq $true) {
+    if ($gh_update_assigned_to -eq $true -and $unique_name -ne "") {
         $ado_assignee=$unique_name
         $gh_assignee=$ado_assignee.Split("@")[0]
         # hardcoding
