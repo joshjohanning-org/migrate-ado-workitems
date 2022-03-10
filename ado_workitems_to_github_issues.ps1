@@ -93,7 +93,7 @@ ForEach($workitem in $query) {
     # create the details chart
     $ado_details_beginning="`n`n<details><summary>Original Work Item Details</summary><p>" + "`n`n"
     $ado_details_beginning | Add-Content -Path ./temp_comment_body.txt
-    $ado_details= "| Created date | Created by | Changed date | Changed By | Assigned To | State | Type | Area Path | Iteration Path|`n|---|---|---|---|---|---|---|---|`n"
+    $ado_details= "| Created date | Created by | Changed date | Changed By | Assigned To | State | Type | Area Path | Iteration Path|`n|---|---|---|---|---|---|---|---|---|`n"
     $ado_details+="| $($details.fields.{System.CreatedDate}) | $($details.fields.{System.CreatedBy}.displayName) | $($details.fields.{System.ChangedDate}) | $($details.fields.{System.ChangedBy}.displayName) | $($details.fields.{System.AssignedTo}.displayName) | $($details.fields.{System.State}) | $($details.fields.{System.WorkItemType}) | $($details.fields.{System.AreaPath}) | $($details.fields.{System.IterationPath}) |`n`n"
     $ado_details | Add-Content -Path ./temp_comment_body.txt
     $ado_details_end="`n" + "`n</p></details>"    
