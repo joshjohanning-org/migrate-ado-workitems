@@ -69,7 +69,7 @@ jobs:
             write-host "does this work"
           }
           
-          if("${{ github.event.inputs.gh_add_ado_comments }}" -eq true) {
+          if("${{ github.event.inputs.gh_add_ado_comments }}" -like "true") {
             $gh_add_ado_comments=$true
             write-host "does this also work"
           }
