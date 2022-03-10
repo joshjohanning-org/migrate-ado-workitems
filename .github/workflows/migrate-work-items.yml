@@ -43,14 +43,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@main
+      
       - uses: tibdex/github-app-token@v1
         id: get_installation_token
         with: 
           app_id: 179484
           installation_id: 23995058
           private_key: ${{ secrets.PRIVATE_KEY }}
-      
-      - uses: actions/checkout@main
       
       - name: run migration
         shell: pwsh
