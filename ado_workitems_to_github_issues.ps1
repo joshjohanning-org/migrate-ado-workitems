@@ -90,7 +90,18 @@ ForEach($workitem in $query) {
     $url="[Original Work Item URL](https://dev.azure.com/$ado_org/$ado_project/_workitems/edit/$($workitem.id))"
     $url | Out-File -FilePath ./temp_comment_body.txt
 
-    # create the details chart
+    # use empty string if there is no user is assigned
+    if ( $null -ne $details.fields.{System.AssignedTo}.displayName )
+    {
+        $assigned_to = $details.fields.{System.AssignedTo}.displayName
+        $unique_name = $details.fields.{System.AssignedTo}.uniqueName
+    }
+    else {
+        $assigned_to = ""
+        $unique_name = ""
+    }
+    
+    # create the details table
     $ado_details_beginning="`n`n<details><summary>Original Work Item Details</summary><p>" + "`n`n"
     $ado_details_beginning | Add-Content -Path ./temp_comment_body.txt
     $ado_details= "| Created date | Created by | Changed date | Changed By | Assigned To | State | Type | Area Path | Iteration Path|`n|---|---|---|---|---|---|---|---|---|`n"
@@ -147,7 +158,7 @@ ForEach($workitem in $query) {
 
     # update assigned to in GitHub if the option is set - tries to use ado email to map to github username
     if ($gh_update_assigned_to -eq $true) {
-        $ado_assignee=$details.fields.{System.AssignedTo}.uniqueName
+        $ado_assignee=$unique_name
         $gh_assignee=$ado_assignee.Split("@")[0]
         # hardcoding
         # $gh_assignee=$gh_assignee.Replace(".", "-") + $gh_assigned_to_user_suffix
