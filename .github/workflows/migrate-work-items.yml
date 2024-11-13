@@ -71,7 +71,7 @@ jobs:
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
-          app-id: 179484
+          app-id: 179484 # work-item-migrator
           private-key: ${{ secrets.PRIVATE_KEY }}
       
       # - name: run migration
