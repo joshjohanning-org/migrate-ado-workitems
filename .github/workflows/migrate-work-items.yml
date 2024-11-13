@@ -11,10 +11,20 @@ on:
         description: 'ado-project'
         required: true
         default: 'PartsUnlimited'
-      ado-tag:
-        description: 'ADO tag to migrate'
+      ado_area_path:
+        description: 'ADO area path to migrate - uses the UNDER operator'
         required: true
         default: 'migrate'
+      ado_migrate_closed_workitems:
+        description: 'Migrate closed work items'
+        required: true
+        type: boolean
+        default: 'true'
+      ado_production_run:
+        description: tag migrated work items with migrated-to-github and add discussion comment
+        required: true
+        type: boolean
+        default: 'true'
       gh-org:
         description: 'gh-org'
         required: true
@@ -43,32 +53,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
       
-      - uses: tibdex/github-app-token@v1
-        id: get_installation_token
-        with: 
-          app_id: 179484
-          installation_id: 23995058
-          private_key: ${{ secrets.PRIVATE_KEY }}
+      # - uses: tibdex/github-app-token@v1
+      #   id: get_installation_token
+      #   with: 
+      #     app_id: 179484
+      #     installation_id: 23995058
+      #     private_key: ${{ secrets.PRIVATE_KEY }}
+
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: 179484
+          private-key: ${{ secrets.PRIVATE_KEY }}
       
       - name: run migration
         shell: pwsh
         run: |
           # run migration script
           
-          # cleaning up bools
-          $gh_update_assigned_to=$false
-          $gh_add_ado_comments=$false
+          $ado_migrate_closed_workitems_param=""
+          $ado_production_run_param=""
+          $gh_update_assigned_to_param=""
+          $gh_add_ado_comments_param=""
           
+          if("${{ github.event.inputs.ado_migrate_closed_workitems }}" -eq "true") {
+            $ado_migrate_closed_workitems_param="-ado_migrate_closed_workitems"
+          }
+
+          if("${{ github.event.inputs.ado_production_run }}" -eq "true") {
+            $ado_production_run_param="-ado_production_run"
+          }
+
           if("${{ github.event.inputs.gh_update_assigned_to }}" -eq "true") {
-            $gh_update_assigned_to=$true
+            $gh_update_assigned_to_param="-gh_update_assigned_to"
           }
           
           if("${{ github.event.inputs.gh_add_ado_comments }}" -eq "true") {
-            $gh_add_ado_comments=$true
+            $gh_add_ado_comments_param="-gh_add_ado_comments"
           }
           
-          ./ado_workitems_to_github_issues.ps1 -ado_pat "${{ SECRETS.ADO_PAT }}" -ado_org "${{ github.event.inputs.ado-org }}" -ado_project "${{ github.event.inputs.ado-project }}" -ado_tag "${{ github.event.inputs.ado-tag }}" -gh_pat "${{ steps.get_installation_token.outputs.token }}" -gh_org "${{ github.event.inputs.gh-org }}" -gh_repo "${{ github.event.inputs.gh-repo }}" -gh_update_assigned_to $gh_update_assigned_to -gh_assigned_to_user_suffix "${{ github.event.inputs.gh_assigned_to_user_suffix }}" -gh_add_ado_comments $gh_add_ado_comments
-          
-      
+          ./ado_workitems_to_github_issues.ps1 -ado_pat "${{ SECRETS.ADO_PAT }}" -ado_org "${{ github.event.inputs.ado-org }}" -ado_project "${{ github.event.inputs.ado-project }}" -ado_area_path "${{ github.event.inputs.ado_area_path }}" $ado_migrate_closed_workitems_param $ado_production_run_param -gh_pat "${{ steps.get_installation_token.outputs.token }}" -gh_org "${{ github.event.inputs.gh-org }}" -gh_repo "${{ github.event.inputs.gh-repo }}" $gh_update_assigned_to_param -gh_assigned_to_user_suffix "${{ github.event.inputs.gh_assigned_to_user_suffix }}" $gh_add_ado_comments_param
