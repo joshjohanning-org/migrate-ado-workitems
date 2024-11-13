@@ -62,9 +62,6 @@ jobs:
       #     installation_id: 23995058
       #     private_key: ${{ secrets.PRIVATE_KEY }}
 
-      - name: confirm az devops is installed
-        run: az devops --help
-
       - name: get az and az devops version
         run: az --version
 
@@ -129,4 +126,4 @@ jobs:
             gh_add_ado_comments_param="--gh_add_ado_comments"
           fi
 
-          pwsh ./ado_workitems_to_github_issues.ps1 -ado_pat "${{ SECRETS.ADO_PAT }}" -ado_org "${{ github.event.inputs.ado-org }}" -ado_project "${{ github.event.inputs.ado-project }}" -ado_area_path "${{ github.event.inputs.ado_area_path }}" $ado_migrate_closed_workitems_param $ado_production_run_param -gh_pat "${{ steps.get_installation_token.outputs.token }}" -gh_org "${{ github.event.inputs.gh-org }}" -gh_repo "${{ github.event.inputs.gh-repo }}" $gh_update_assigned_to_param -gh_assigned_to_user_suffix "${{ github.event.inputs.gh_assigned_to_user_suffix }}" $gh_add_ado_comments_param
+          pwsh ./ado_workitems_to_github_issues.ps1 -ado_pat "${{ SECRETS.ADO_PAT }}" -ado_org "${{ github.event.inputs.ado-org }}" -ado_project "${{ github.event.inputs.ado-project }}" -ado_area_path "${{ github.event.inputs.ado_area_path }}" $ado_migrate_closed_workitems_param $ado_production_run_param -gh_pat "${{ steps.app-token.outputs.token }}" -gh_org "${{ github.event.inputs.gh-org }}" -gh_repo "${{ github.event.inputs.gh-repo }}" $gh_update_assigned_to_param -gh_assigned_to_user_suffix "${{ github.event.inputs.gh_assigned_to_user_suffix }}" $gh_add_ado_comments_param
