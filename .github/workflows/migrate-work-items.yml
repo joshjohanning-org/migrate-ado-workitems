@@ -62,6 +62,15 @@ jobs:
       #     installation_id: 23995058
       #     private_key: ${{ secrets.PRIVATE_KEY }}
 
+      - name: confirm az devops is installed
+        run: az devops --help
+
+      - name: get az and az devops version
+        run: az --version
+
+      - name: get gh version
+        run: gh --version
+
       - uses: actions/create-github-app-token@v1
         id: app-token
         with:
