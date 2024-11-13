@@ -24,7 +24,7 @@ on:
         description: tag migrated work items with migrated-to-github and add discussion comment
         required: true
         type: boolean
-        default: 'true'
+        default: 'false'
       gh-org:
         description: 'gh-org'
         required: true
