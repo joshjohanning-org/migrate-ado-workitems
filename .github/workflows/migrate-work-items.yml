@@ -73,6 +73,7 @@ jobs:
         with:
           app-id: 179484 # work-item-migrator
           private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
       
       # - name: run migration
       #   shell: pwsh
