@@ -68,12 +68,12 @@ jobs:
       - name: get gh version
         run: gh --version
 
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: 179484 # work-item-migrator
-          private-key: ${{ secrets.PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+      # - uses: actions/create-github-app-token@v1
+      #   id: app-token
+      #   with:
+      #     app-id: 179484 # work-item-migrator
+      #     private-key: ${{ secrets.PRIVATE_KEY }}
+      #     owner: ${{ github.repository_owner }}
       
       # - name: run migration
       #   shell: pwsh
@@ -127,4 +127,4 @@ jobs:
             gh_add_ado_comments_param="--gh_add_ado_comments"
           fi
 
-          pwsh ./ado_workitems_to_github_issues.ps1 -ado_pat "${{ SECRETS.ADO_PAT }}" -ado_org "${{ github.event.inputs.ado-org }}" -ado_project "${{ github.event.inputs.ado-project }}" -ado_area_path "${{ github.event.inputs.ado_area_path }}" $ado_migrate_closed_workitems_param $ado_production_run_param -gh_pat "${{ steps.app-token.outputs.token }}" -gh_org "${{ github.event.inputs.gh-org }}" -gh_repo "${{ github.event.inputs.gh-repo }}" $gh_update_assigned_to_param -gh_assigned_to_user_suffix "${{ github.event.inputs.gh_assigned_to_user_suffix }}" $gh_add_ado_comments_param
+          pwsh ./ado_workitems_to_github_issues.ps1 -ado_pat "${{ secrets.ADO_PAT }}" -ado_org "${{ github.event.inputs.ado-org }}" -ado_project "${{ github.event.inputs.ado-project }}" -ado_area_path "${{ github.event.inputs.ado_area_path }}" $ado_migrate_closed_workitems_param $ado_production_run_param -gh_pat "${{ secrets.GH_PAT }}" -gh_org "${{ github.event.inputs.gh-org }}" -gh_repo "${{ github.event.inputs.gh-repo }}" $gh_update_assigned_to_param -gh_assigned_to_user_suffix "${{ github.event.inputs.gh_assigned_to_user_suffix }}" $gh_add_ado_comments_param
